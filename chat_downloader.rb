@@ -2,6 +2,8 @@ require "koala"
 require "date"
 
 class ChatDownloader
+  # @param thread_id [String] facebook conversation id
+  # @param access_token [String] facebook oauth token
   def initialize(thread_id, access_token)
     @access_token = access_token
     @thread_id = thread_id
@@ -61,11 +63,17 @@ end
 
 Koala.config.api_version = "v2.2"
 
-thread_id = "xxx"
-access_token = "yyy"
-file_name = "chat.txt"
+thread_id = ENV["THREAD_ID"]
+access_token = ENV["ACCESS_TOKEN"]
+file_name = ENV["FILE_NAME"] || "chat.txt"
+limit = ENV["LIMIT"].to_i if ENV["LIMIT"]
+max_date = ENV["MAX_DATE"]
+
+raise "THREAD_ID must be present" if thread_id.nil?
+raise "ACCESS_TOKEN must be present" if access_token.nil?
+raise "MAX_DATE is not a valid date" if max_date && !(begin DateTime.parse(max_date) rescue false end)
 
 ChatDownloader.new(
   thread_id,
   access_token
-).download(file_name: file_name)
+).download(file_name: file_name, limit: limit, max_date: max_date)
